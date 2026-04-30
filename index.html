@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FU88 - 安全連線入口</title>
+    <!-- 預載入關鍵資源提升載入速度 -->
+    <link rel="preload" as="image" href="images/fu88 1.webp">
+    <link rel="preload" as="image" href="images/logo.webp">
+
+    <!-- ========================================== -->
+    <!-- [官方建議] Google Analytics (GA4) - 放置於 <head> 最上方 -->
+    <!-- ========================================== -->
+    <script>
+        function initGA(id) {
+            if (!id || id.includes('XXXXXXXXXX')) return;
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { dataLayer.push(arguments); };
+            gtag('js', new Date());
+            gtag('config', id);
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-yellow: #ffe600;
+            --primary-red: #d10000;
+            --accent-purple: #2b1055;
+            --dark-bg: #0f0f0f;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-gold: #ffcc00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+            /* 為底部固定按鈕留出空間 */
+            position: relative;
+        }
+
+        /* 根據使用者系統習慣切換外圍背景色 */
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: #f0f0f0;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #0f0f0f;
+            }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            /* 限制背景只在手機尺寸內顯示 */
+            height: 100%;
+            background-image: url('images/fu88 1.webp');
+            background-size: cover;
+            background-position: center 25%;
+            background-repeat: no-repeat;
+            z-index: -2;
+            filter: brightness(0.5) contrast(1.1) saturate(1.1);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            /* 限制漸層也只在手機尺寸內顯示 */
+            height: 100%;
+            background: linear-gradient(180deg, rgba(43, 16, 85, 0.3) 0%, rgba(15, 15, 15, 0.8) 100%);
+            z-index: -1;
+        }
+
+
+
+        /* --- Main Content --- */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 15px 30px 15px;
+            text-align: center;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            /* 限制為手機寬度 */
+            margin: 0 auto;
+        }
+
+        /* Logo 容器 */
+        .logo-container {
+            width: 160px;
+            margin: 15px 0;
+            filter: drop-shadow(0 0 20px rgba(255, 230, 0, 0.3));
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* --- Banner 展示區 (低調奢華邊框) --- */
+        .banner-container {
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            padding: 3px;
+            /* 縮小邊框厚度 */
+            /* 極深的午夜藍，帶有微弱的光澤 */
+            background: linear-gradient(135deg, #0a1128 0%, #1c2b59 50%, #0a1128 100%);
+            border: 1px solid rgba(255, 202, 40, 0.4);
+            /* 細緻半透明的金線 */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        /* 內側細金線與影片暗角 */
+        .banner-container::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            border-radius: 13px;
+            border: 1px solid rgba(255, 202, 40, 0.15);
+            /* 極淡的內圈金線 */
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            /* 影片四周加上微暗角，更融入背景 */
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .banner-container img,
+        .banner-container video {
+            width: 100%;
+            display: block;
+            pointer-events: none;
+            border-radius: 13px;
+            box-sizing: border-box;
+            background-color: #000;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- 主打活動燈箱 --- */
+        .featured-container {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .featured-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 15px;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .featured-slider::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .featured-item {
+            flex: 0 0 90%;
+            scroll-snap-align: center;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .featured-item img {
+            width: 100%;
+            display: block;
+        }
+
+        .game-grid-title {
+            font-size: 14px;
+            color: var(--primary-yellow);
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .game-grid-container {
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 30px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .game-marquee {
+            display: flex;
+            animation: marquee 30s linear infinite;
+            width: max-content;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 12px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 20px;
+            /* 使用 margin-right 確保無縫循環 */
+        }
+
+        .game-card img {
+            height: 30px;
+            /* 縮小圖示 */
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* --- 底部固定圖片按鈕 (Sticky Footer CTA) --- */
+        .footer-cta {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            /* 跟隨內容寬度 */
+            padding: 0;
+            /* 移除 padding 讓圖片貼齊邊緣 */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 40%, transparent 100%);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .sticky-btn {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.6));
+        }
+
+        .sticky-btn img,
+        .sticky-btn svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            /* 確保不變形 */
+        }
+
+        .sticky-btn:active {
+            transform: scale(0.95);
+        }
+
+
+
+        /* --- Side Buttons --- */
+        .side-buttons {
+            position: fixed;
+            right: 15px;
+            top: 45%;
+            /* 向上調整以免遮擋 */
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 50;
+        }
+
+        .side-btn {
+            background: none;
+            border: none;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .side-btn img {
+            width: 55px;
+            height: 55px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.6));
+            transition: transform 0.3s ease;
+        }
+
+        .side-btn:hover img {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        @media (min-width: 480px) {
+            .side-buttons {
+                right: calc(50% - 240px + 10px);
+                /* 保持在 480px 容器內部 */
+            }
+        }
+
+        .side-btn span {
+            font-size: 11px;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary-red);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid #fff;
+        }
+
+        /* --- 隱藏底部跑馬燈 --- */
+        .bottom-marquee {
+            display: none !important;
+        }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2b1055 0%, #000 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 85%;
+            max-width: 360px;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .modal-action-btn {
+            background: linear-gradient(90deg, #ff0055 0%, #ff5500 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .text-close {
+            display: inline-block;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .text-close:hover {
+            color: #fff;
+        }
+
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <!-- ========================================== -->
+    <!-- [官方建議] Meta Pixel Code - 放置於 <head> 結束前 -->
+    <!-- ========================================== -->
+    <script>
+        function initPixel(id) {
+            if (!id || id.includes('PIXEL_ID_HERE')) return;
+            !function (f, b, e, v, n, t, s) {
+                if (f.fbq) return; n = f.fbq = function () {
+                    n.callMethod ?
+                        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                };
+                if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+                n.queue = []; t = b.createElement(e); t.async = !0;
+                t.src = v; s = b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t, s)
+            }(window, document, 'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', id);
+            fbq('track', 'PageView');
+
+            // 動態插入 noscript 內容
+            const noscript = document.createElement('noscript');
+            noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1" />`;
+            document.body.insertBefore(noscript, document.body.firstChild);
+        }
+    </script>
+</head>
+
+<body>
+
+    <main class="content">
+        <div class="logo-container">
+            <img src="images/logo.webp" alt="FU88 Logo" decoding="async">
+        </div>
+
+        <div class="banner-container">
+            <video src="videos/videoplayback.mp4" autoplay loop muted playsinline poster="images/banner3.webp"></video>
+        </div>
+
+        <div class="game-grid-title">
+            <span>👇 主打活動 👇</span>
+        </div>
+        <div class="featured-container">
+            <div class="featured-slider" id="featuredSlider">
+                <div class="featured-item"><img src="images/bonus-banner/0.webp" alt="Bonus 0" loading="lazy"
+                        decoding="async"></div>
+                <div class="featured-item"><img src="images/bonus-banner/1.webp" alt="Bonus 1" loading="lazy"
+                        decoding="async"></div>
+                <div class="featured-item"><img src="images/bonus-banner/2.webp" alt="Bonus 2" loading="lazy"
+                        decoding="async"></div>
+                <div class="featured-item"><img src="images/bonus-banner/3.webp" alt="Bonus 3" loading="lazy"
+                        decoding="async"></div>
+            </div>
+        </div>
+
+        <div class="game-grid-title">
+            <span>👇 合作遊戲品牌 👇</span>
+        </div>
+        <div class="game-grid-container">
+            <div class="game-marquee" id="gameMarquee">
+                <!-- 由 JS 填寫內容 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 固定於底部的圖片按鈕區 -->
+    <div class="footer-cta">
+        <a href="#" class="sticky-btn">
+            <img src="images/cta_button.webp" alt="立即註冊領取優惠" loading="lazy" decoding="async"
+                onerror="this.src='https://placehold.co/750x160/ffe600/4a0082?text=Register+Now+Now!'">
+        </a>
+    </div>
+
+    <div class="side-buttons">
+        <button class="side-btn gift" id="openGiftModal">
+            <span class="badge">1</span>
+            <img src="images/sdasdas-removebg-preview.webp" alt="優惠" loading="lazy" decoding="async">
+            <span>領取福利</span>
+        </button>
+
+        <a href="#" class="side-btn line" target="_blank">
+            <img src="images/line-removebg-preview.webp" alt="客服" loading="lazy" decoding="async">
+            <span>線上客服</span>
+        </a>
+    </div>
+
+    <div class="modal-overlay" id="giftModalOverlay">
+        <div class="modal-content">
+            <button class="close-btn" id="closeGiftModal">&times;</button>
+            <img src="images/META-A0003_改1.webp" alt="優惠" loading="lazy" decoding="async"
+                style="width: 100%; border-radius: 15px; margin-bottom: 25px;">
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 12px; color: var(--primary-yellow);">🎉
+                開運紅包已送達</div>
+            <p style="font-size: 15px; color: rgba(255,255,255,0.8); line-height: 1.6;">恭喜獲得專屬開運金！<br>現在註冊即刻領取，挑戰最高獎金。
+            </p>
+            <button class="modal-action-btn">立即領取紅包</button>
+        </div>
+    </div>
+
+    <!-- 客服導向註冊彈窗 -->
+    <div class="modal-overlay" id="lineModalOverlay">
+        <div class="modal-content">
+            <div style="font-size: 50px; margin-bottom: 15px;">💬</div>
+            <div style="font-size: 22px; font-weight: bold; margin-bottom: 20px; color: #fff; line-height: 1.4;">
+                請先註冊後<br>再聯繫官方客服領獎！
+            </div>
+            <button class="modal-action-btn" id="lineGoRegister">先去註冊</button>
+            <div class="text-close" id="closeLineModal">關閉</div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            registerUrl: "https://ry6668.com/ag/metameta2/auth/register",
+            lineUrl: "https://line.me/R/ti/p/@398rsfwb?oat_content=url&ts=04201536",
+        };
+
+        // --- Game Marquee ---
+        const gameMarquee = document.getElementById('gameMarquee');
+        const logos = [1, 2, 3, 5, 8, 12, 23, 31];
+
+        // 渲染第一組
+        logos.forEach(num => {
+            const pad = num.toString().padStart(2, '0');
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `<img src="icon/gamelogo${pad}.webp" alt="Game Logo" loading="lazy" decoding="async">`;
+            gameMarquee.appendChild(card);
+        });
+
+        // 複製一份以達成無縫滾動
+        gameMarquee.innerHTML += gameMarquee.innerHTML;
+
+        // --- Featured Slider Auto-scroll ---
+        const featuredSlider = document.getElementById('featuredSlider');
+        let fIndex = 0;
+        setInterval(() => {
+            const items = featuredSlider.querySelectorAll('.featured-item');
+            if (items.length > 0) {
+                fIndex = (fIndex + 1) % items.length;
+                const scrollPos = items[fIndex].offsetLeft - (featuredSlider.offsetWidth * 0.05); // 稍微置中偏移
+                featuredSlider.scrollTo({
+                    left: scrollPos,
+                    behavior: 'smooth'
+                });
+            }
+        }, 4000);
+
+        // --- Modal ---
+        const modal = document.getElementById('giftModalOverlay');
+        const lineModal = document.getElementById('lineModalOverlay');
+
+        document.getElementById('openGiftModal').onclick = () => {
+            modal.style.display = 'flex';
+            trackEvent('open_gift', { event_category: 'Engagement' });
+        };
+        document.getElementById('closeGiftModal').onclick = () => {
+            modal.style.display = 'none';
+            trackEvent('close_gift', { event_category: 'Engagement' });
+        };
+
+        // LINE 彈窗關閉
+        document.getElementById('closeLineModal').onclick = () => {
+            lineModal.style.display = 'none';
+        };
+
+        window.onclick = (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                trackEvent('close_gift', { event_category: 'Engagement' });
+            }
+            if (e.target === lineModal) {
+                lineModal.style.display = 'none';
+            }
+        };
+
+        // LINE 彈窗內的註冊按鈕
+        document.getElementById('lineGoRegister').onclick = () => {
+            trackEvent('click_line_to_register', { event_category: 'Conversion' });
+            window.location.href = CONFIG.registerUrl;
+        };
+
+        // --- Tracking Function ---
+        function trackEvent(eventName, params = {}) {
+            console.log('Tracking Event:', eventName, params);
+            // GA4 Tracking
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params);
+            }
+            // Meta Pixel Tracking
+            if (typeof fbq === 'function') {
+                if (eventName === 'click_register' || eventName === 'click_modal_register') {
+                    fbq('track', 'CompleteRegistration', params);
+                } else if (eventName === 'click_line') {
+                    fbq('track', 'Contact', params);
+                } else if (eventName === 'open_gift') {
+                    fbq('track', 'ViewContent', params);
+                } else {
+                    fbq('trackCustom', eventName, params);
+                }
+            }
+        }
+
+        // ==========================================
+        // 綁定全域連結到各個點擊區域
+        // ==========================================
+        // 1. 綁定註冊連結 (一般區域)
+        const registerElements = document.querySelectorAll('.banner-container, .featured-item, .game-card, .sticky-btn');
+        registerElements.forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                trackEvent('click_register', { event_category: 'Conversion' });
+                setTimeout(() => { window.location.href = CONFIG.registerUrl; }, 150);
+            });
+        });
+
+        // 2. 綁定優惠視窗內註冊連結 (獨立事件)
+        const modalActionBtn = document.querySelector('.modal-action-btn');
+        if (modalActionBtn) {
+            modalActionBtn.style.cursor = 'pointer';
+            modalActionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                trackEvent('click_modal_register', { event_category: 'Conversion' });
+                setTimeout(() => { window.location.href = CONFIG.registerUrl; }, 150);
+            });
+        }
+
+        // 3. 綁定 LINE 客服連結 (改為彈窗提示)
+        const lineBtn = document.querySelector('.side-btn.line');
+        if (lineBtn) {
+            lineBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // 阻止直接跳轉
+                trackEvent('click_line_support', { event_category: 'Engagement' });
+                document.getElementById('lineModalOverlay').style.display = 'flex';
+            });
+            // lineBtn.href = CONFIG.lineUrl; // 註解掉直接導向
+        }
+
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 追蹤代碼快速配置區 (集中於此填寫) -->
+    <!-- ========================================== -->
+    <script>
+        const TRACKING_CONFIG = {
+            gaId: 'G-XXXXXXXXXX',    // 填寫 GA 追蹤碼
+            pixelId: 'PIXEL_ID_HERE' // 填寫 Meta 像素 ID
+        };
+
+        // 啟動追蹤
+        if (typeof initGA === 'function') initGA(TRACKING_CONFIG.gaId);
+        if (typeof initPixel === 'function') initPixel(TRACKING_CONFIG.pixelId);
+    </script>
+</body>
+
+</html>
