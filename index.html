@@ -660,12 +660,13 @@
             }
             // Meta Pixel Tracking
             if (typeof fbq === 'function') {
-                if (eventName === 'click_register' || eventName === 'click_modal_register') {
+                if (eventName === 'click_register' || eventName === 'click_modal_register' || eventName === 'click_line_to_register') {
                     fbq('track', 'CompleteRegistration', params);
-                } else if (eventName === 'click_line') {
+                } else if (eventName === 'click_line' || eventName === 'click_line_support') {
                     fbq('track', 'Contact', params);
-                } else if (eventName === 'open_gift') {
+                } else if (eventName === 'open_gift' || eventName === 'open_line_modal') {
                     fbq('track', 'ViewContent', params);
+                } else if (eventName === 'close_gift' || eventName === 'close_line_modal') {
                 } else {
                     fbq('trackCustom', eventName, params);
                 }
